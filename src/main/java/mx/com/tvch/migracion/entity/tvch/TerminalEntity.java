@@ -30,16 +30,16 @@ public class TerminalEntity {
 	private TipoTerminalEntity tipo;
 	
 	@Column(name = "serie")
-	private Long serie;
+	private String serie;
 	
 	@Column(name = "ip")
-	private Long ip;
+	private String ip;
 	
 	@Column(name = "vlan")
-	private Long vlan;
+	private String vlan;
 	
 	@Column(name = "nap")
-	private Long nap;
+	private String nap;
 	
 	@ManyToOne
 	@JoinColumn(name = "id_estatus", referencedColumnName = "id_estatus_terminal")

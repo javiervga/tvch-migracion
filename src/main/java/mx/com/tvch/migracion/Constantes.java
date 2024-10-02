@@ -49,5 +49,14 @@ public class Constantes {
 	public static final long ESTATUS_SUSCRIPTOR_ACTIVO = 2;
 	public static final long ESTATUS_SUSCRIPTOR_INACTIVO = 3;
 	
+	public static final long ESTATUS_TERMINAL_NUEVO = 1;
+	public static final long ESTATUS_TERMINAL_ACTIVO = 2;
+	public static final long ESTATUS_TERMINAL_INACTIVO = 3;
+	public static final long ESTATUS_TERMINAL_REPARACION = 4;
+	public static final long ESTATUS_TERMINAL_BAJA = 5;
+	
+	public static final long TIPO_TERMINAL_ONU = 1;
+	public static final long TIPO_TERMINAL_ONT = 2;
+	
 	
 }

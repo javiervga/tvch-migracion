@@ -1,8 +1,7 @@
-package mx.com.tvch.migracion.entity.tvch;
+package mx.com.tvch.migracion.entity.old;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,27 +14,17 @@ import lombok.Data;
 @Entity
 @DynamicUpdate
 @DynamicInsert
-@Table(name = "domicilios")
-public class DomicilioEntity {
-	
+@Table(name = "costos")
+public class CostosOldEntity {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id_domicilio ")
-	private Long id;
+	@Column(name = "id")
+	private Long id; 
 	
-	@Column(name = "colonia")
-	private String colonia;
+	@Column(name = "servicio")
+	private String servicio; 
 	
-	@Column(name = "calle")
-	private String calle;
-	
-	@Column(name = "numero_calle")
-	private String numeroCalle;
-	
-	@Column(name = "referencia")
-	private String referencia;
-	
-	@Column(name = "estatus")
-	private Integer estatus;
-
+	@Column(name = "costo")
+	private String costo; 
 }
