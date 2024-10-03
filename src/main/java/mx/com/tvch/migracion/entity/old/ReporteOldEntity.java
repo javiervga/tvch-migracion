@@ -25,6 +25,9 @@ public class ReporteOldEntity {
 	@Column(name = "contrato")
 	private String contrato;
 	
+	@Column(name = "tvs")
+	private String tvs;
+	
 	@Column(name = "sn")
 	private String sn;
 	

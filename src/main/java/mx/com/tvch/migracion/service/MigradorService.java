@@ -184,7 +184,7 @@ public class MigradorService implements MIgracionSucursalService{
 					cs -> cs.getContrato().getIdContratoAnterior().longValue() == clienteOldEntity.getNum_contrato().longValue())) {
 				//ya existe un suscriptor con el mismo numero de contrato anterior
 				//en este caso no se hace nada porque se entiende que esta duplicado el registro
-				log.info("El cliente con contrato: "+clienteOldEntity.getNum_contrato()+" ya ha sido registrado anteriormente como suscriptor: "+suscriptorExistente.get().getId());			
+				log.warn("El cliente con contrato: "+clienteOldEntity.getNum_contrato()+" ya ha sido registrado anteriormente como suscriptor: "+suscriptorExistente.get().getId());			
 			}else {
 				//el numero de contrato anterior es diferente, quiere decir que el cliente tenia mas de un contrato en la antigua base
 				//en este caso solo se registra el nuevo contrato
@@ -365,13 +365,28 @@ public class MigradorService implements MIgracionSucursalService{
 			estatusContratoRepository.save(estatusContratoEntity);
 		}
 		
+		//recuperar el ultimo registro de la tabla reporte con el numero de contrato anterior
+		Integer tvsContratadas = null;
+		List<ReporteOldEntity> reportesCliente = 
+				StreamSupport.stream(Spliterators.spliteratorUnknownSize(reporteRepository.findByContrato(String.valueOf(clienteEntity.getNum_contrato())).iterator(), Spliterator.ORDERED), false)
+				.collect(Collectors.toList());
+		ReporteOldEntity reporteExistente = null;
+		if(!reportesCliente.isEmpty()) {
+			reporteExistente = reportesCliente.getLast();
+			try {
+				tvsContratadas = Integer.parseInt(reporteExistente.getTvs());
+			}catch(Exception e) {
+				log.warn("Error al obtener tvs contratadas de reporte: "+reporteExistente.toString());
+			}
+		}
+		
 		ContratoEntity entity = new ContratoEntity();
 		entity.setDiaCorte(null);
 		entity.setDiaPago(null);
 		entity.setEstatus(estatusContratoEntity);
 		entity.setFechaRegistro(formatoFecha.parse(obtenerFechIngreso(clienteEntity)));
 		entity.setIdContratoAnterior(clienteEntity.getNum_contrato());
-		entity.setTvsContratadas(null);
+		entity.setTvsContratadas(tvsContratadas);
 		entity.setUsuario(usuarioEntity);
 		return entity;
 	}
