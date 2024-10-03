@@ -81,8 +81,6 @@ public class ClienteOldEntity {
 	
 	@Column(name = "hora")
 	private String hora;
-	
-	@Column(name = "nap")
-	private String nap;
+
 
 }

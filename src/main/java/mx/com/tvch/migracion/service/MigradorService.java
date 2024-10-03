@@ -123,14 +123,14 @@ public class MigradorService implements MIgracionSucursalService{
 		// TODO Auto-generated method stub
 		
 		//Paso 1 -> Obtener el registro de la sucursal de la nueva BD
-		SucursalEntity sucursalEntity = sucursalRepository.findById(Constantes.AHUAZOTEPEC).orElseThrow(()->new Exception("Sucursal No encontrada en BD TVCH"));
+		SucursalEntity sucursalEntity = sucursalRepository.findById(Constantes.ATOTONILCO).orElseThrow(()->new Exception("Sucursal No encontrada en BD TVCH"));
 		
 		//Paso 2 -> recuperar todos los suscriptores de la nueva base y validar para asegurarnos que no dupliquemos
 		List<SuscriptorEntity> suscriptoresExistentes = 
 				StreamSupport.stream(Spliterators.spliteratorUnknownSize(suscriptorRepository.findAll().iterator(), Spliterator.ORDERED), false)
 				.collect(Collectors.toList());
 		
-		if(suscriptoresExistentes.stream().anyMatch(s -> s.getSucursal().equals(Constantes.AHUAZOTEPEC))) {
+		if(suscriptoresExistentes.stream().anyMatch(s -> s.getSucursal().equals(Constantes.ATOTONILCO))) {
 			throw new Exception("Ya existen clientes registrados con la sucursal solicitada");
 		}
 		
@@ -196,7 +196,7 @@ public class MigradorService implements MIgracionSucursalService{
 				//si se requiere crear servicio y servicio x contrato
 				validaryCrearServicio(sucursalEntity, clienteOldEntity, nuevoContrato);			
 				//si se requiere crear terminal y terminal x contrato
-				validaryCrearTerminal(usuarioEntity, nuevoContrato);			
+				//validaryCrearTerminal(usuarioEntity, nuevoContrato);			
 				//crear domicilio
 				validaryCrearDomicilio(clienteOldEntity, nuevoContrato);
 			}
@@ -217,7 +217,7 @@ public class MigradorService implements MIgracionSucursalService{
 			//si se requiere crear servicio y servicio x contrato
 			validaryCrearServicio(sucursalEntity, clienteOldEntity, nuevoContrato);			
 			//si se requiere crear terminal y terminal x contrato
-			validaryCrearTerminal(usuarioEntity, nuevoContrato);			
+			//validaryCrearTerminal(usuarioEntity, nuevoContrato);			
 			//crear domicilio
 			validaryCrearDomicilio(clienteOldEntity, nuevoContrato);
 			
@@ -240,48 +240,6 @@ public class MigradorService implements MIgracionSucursalService{
 		domiciliosxContratoEntity.setContrato(contratoEntity);
 		domiciliosxContratoEntity.setDomicilio(domicilioEntity);
 		domiciliosxContratoRepository.save(domiciliosxContratoEntity);
-		
-	}
-	
-	/**
-	 * 
-	 * @param usuarioEntity
-	 * @param contratoEntity
-	 */
-	private void validaryCrearTerminal(UsuarioEntity usuarioEntity, ContratoEntity contratoEntity) {
-		
-		EstatusTerminalEntity estatusTerminalEntity = estatusTerminalRepository.findById(Constantes.ESTATUS_TERMINAL_ACTIVO).get();
-		TipoTerminalEntity tipoTerminalEntity = tipoTerminalRepository.findById(Constantes.TIPO_TERMINAL_ONT).get();
-		
-		TerminalEntity terminal = new TerminalEntity();
-		
-		//recuperar el ultimo registro de la tabla reporte con el numero de contrato anterior
-		List<ReporteOldEntity> reportesCliente = 
-				StreamSupport.stream(Spliterators.spliteratorUnknownSize(reporteRepository.findByContrato(String.valueOf(contratoEntity.getIdContratoAnterior())).iterator(), Spliterator.ORDERED), false)
-				.collect(Collectors.toList());
-		ReporteOldEntity reporteExistente = null;
-		if(!reportesCliente.isEmpty()) {
-			reporteExistente = reportesCliente.getLast();
-		}
-		
-		if(reporteExistente != null) {
-			terminal.setIp(reporteExistente.getIp());
-			terminal.setNap(reporteExistente.getNap());
-			terminal.setSerie(reporteExistente.getSn());
-			terminal.setVlan(reporteExistente.getVlan());
-			
-			terminal.setEstatus(estatusTerminalEntity);
-			terminal.setFechaRegistro(new Date());
-			terminal.setTipo(tipoTerminalEntity);
-			terminal.setUsuario(usuarioEntity);
-			terminalRepository.save(terminal);
-			
-			TerminalesxContratoEntity terminalesxContratoEntity = new TerminalesxContratoEntity();
-			terminalesxContratoEntity.setContrato(contratoEntity);
-			terminalesxContratoEntity.setTerminal(terminal);
-			terminalesxContratoEntity.setEstatus(1); //activo
-			terminalesxContratoRepository.save(terminalesxContratoEntity);
-		}
 		
 	}
 	
