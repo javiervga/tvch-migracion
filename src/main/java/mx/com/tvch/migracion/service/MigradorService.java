@@ -334,7 +334,7 @@ public class MigradorService implements MIgracionSucursalService{
 			try {
 				tvsContratadas = Integer.parseInt(reporteExistente.getTvs());
 			}catch(Exception e) {
-				log.warn("Error al obtener tvs contratadas de reporte: "+reporteExistente.toString());
+				//log.warn("Error al obtener tvs contratadas de reporte: "+reporteExistente.toString());
 			}
 		}
 		
