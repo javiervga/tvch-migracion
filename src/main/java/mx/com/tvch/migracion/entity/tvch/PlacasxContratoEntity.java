@@ -1,6 +1,5 @@
 package mx.com.tvch.migracion.entity.tvch;
 
-import java.util.Date;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import jakarta.persistence.Column;
@@ -17,32 +16,20 @@ import lombok.Data;
 @Entity
 @DynamicUpdate
 @DynamicInsert
-@Table(name = "contratos")
-public class ContratoEntity {
+@Table(name = "placas_x_contrato")
+public class PlacasxContratoEntity {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id_contrato")
+	@Column(name = "id_placaxcontrato ")
 	private Long id;
 	
-	@Column(name = "id_contrato_anterior")
-	private Long idContratoAnterior;
+	@ManyToOne
+	@JoinColumn(name = "id_contrato", referencedColumnName = "id_contrato")
+	private ContratoEntity contrato;
 	
 	@ManyToOne
-	@JoinColumn(name = "id_estatus", referencedColumnName = "id_estatus")
-	private EstatusContratoEntity estatus;
-	
-	@Column(name = "fecha_registro")
-	private Date fechaRegistro;
-	
-	@ManyToOne
-	@JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario")
-	private UsuarioEntity usuario;
-	
-	@Column(name = "tvs_contratadas")
-	private Integer tvsContratadas;
-	
-	@Column(name = "fecha_proximo_pago")
-	private Date fechaProximoPago;
-	
+	@JoinColumn(name = "id_placa", referencedColumnName = "id_placa")
+	private PlacaEntity placa;
+
 }

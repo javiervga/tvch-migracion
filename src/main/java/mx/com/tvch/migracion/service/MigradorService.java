@@ -25,9 +25,12 @@ import mx.com.tvch.migracion.entity.tvch.DomiciliosxContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.EstatusContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.EstatusSuscriptorEntity;
 import mx.com.tvch.migracion.entity.tvch.EstatusTerminalEntity;
+import mx.com.tvch.migracion.entity.tvch.PlacaEntity;
+import mx.com.tvch.migracion.entity.tvch.PlacasxContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.ServicioEntity;
 import mx.com.tvch.migracion.entity.tvch.ServiciosxContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.SucursalEntity;
+import mx.com.tvch.migracion.entity.tvch.EstatusPlacaEntity;
 import mx.com.tvch.migracion.entity.tvch.SuscriptorEntity;
 import mx.com.tvch.migracion.entity.tvch.TerminalEntity;
 import mx.com.tvch.migracion.entity.tvch.TerminalesxContratoEntity;
@@ -41,6 +44,7 @@ import mx.com.tvch.migracion.repository.tvch.ContratosxSuscriptorRepository;
 import mx.com.tvch.migracion.repository.tvch.DomicilioRepository;
 import mx.com.tvch.migracion.repository.tvch.DomiciliosxContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.EstatusContratoRepository;
+import mx.com.tvch.migracion.repository.tvch.EstatusPlacaRepository;
 import mx.com.tvch.migracion.repository.tvch.EstatusSuscriptorRepository;
 import mx.com.tvch.migracion.repository.tvch.EstatusTerminalRepository;
 import mx.com.tvch.migracion.repository.tvch.ServicioRepository;
@@ -48,6 +52,8 @@ import mx.com.tvch.migracion.repository.tvch.ServiciosxContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.SucursalRepository;
 import mx.com.tvch.migracion.repository.tvch.SuscriptorRepository;
 import mx.com.tvch.migracion.repository.tvch.TerminalRepository;
+import mx.com.tvch.migracion.repository.tvch.PlacaRepository;
+import mx.com.tvch.migracion.repository.tvch.PlacasxContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.TerminalesxContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.TipoTerminalRepository;
 import mx.com.tvch.migracion.repository.tvch.UsuarioRepository;
@@ -111,6 +117,15 @@ public class MigradorService implements MIgracionSucursalService{
 
 	@Autowired
 	private DomiciliosxContratoRepository domiciliosxContratoRepository;
+	
+	@Autowired
+	private PlacaRepository placaRepository;
+	
+	@Autowired
+	private EstatusPlacaRepository estatusPlacaRepository;
+	
+	@Autowired
+	private PlacasxContratoRepository placasxContratoRepository;
 	
 	@Override
 	public long count() throws Exception {
@@ -199,6 +214,8 @@ public class MigradorService implements MIgracionSucursalService{
 				//validaryCrearTerminal(usuarioEntity, nuevoContrato);			
 				//crear domicilio
 				validaryCrearDomicilio(clienteOldEntity, nuevoContrato);
+				//crear placa
+				validaryCrearPlaca(nuevoContrato, clienteOldEntity);
 			}
 			
 			
@@ -220,9 +237,37 @@ public class MigradorService implements MIgracionSucursalService{
 			//validaryCrearTerminal(usuarioEntity, nuevoContrato);			
 			//crear domicilio
 			validaryCrearDomicilio(clienteOldEntity, nuevoContrato);
-			
+			//crear placa
+			validaryCrearPlaca(nuevoContrato, clienteOldEntity);
 		}
 		
+		
+	}
+	
+	private void validaryCrearPlaca(ContratoEntity contratoEntity, ClienteOldEntity clienteOldEntity) {
+		
+		EstatusPlacaEntity estatusPlacaEntity = null;
+		if(contratoEntity.getEstatus().getDescripcion().contains("ACTIVO") || 
+				contratoEntity.getEstatus().getDescripcion().contains("CORTESIA") ||
+				contratoEntity.getEstatus().getDescripcion().contains("CORTE") ||
+				contratoEntity.getEstatus().getDescripcion().contains("RETIRO")) {
+			estatusPlacaEntity = estatusPlacaRepository.findById(2L).get(); //instalada
+		}else if(contratoEntity.getEstatus().getDescripcion().contains("RETIRADO")) {
+			estatusPlacaEntity = estatusPlacaRepository.findById(4L).get();  //baja
+		}else {
+			estatusPlacaEntity = estatusPlacaRepository.findById(1L).get();  //nueva
+		}
+		
+		PlacaEntity placaEntity = new PlacaEntity();
+		placaEntity.setColor("");
+		placaEntity.setEstatus(estatusPlacaEntity);
+		placaEntity.setFolio(String.valueOf(clienteOldEntity.getNum_contrato()));
+		placaRepository.save(placaEntity);
+		
+		PlacasxContratoEntity placasxContratoEntity = new PlacasxContratoEntity();
+		placasxContratoEntity.setContrato(contratoEntity);
+		placasxContratoEntity.setPlaca(placaEntity);
+		placasxContratoRepository.save(placasxContratoEntity);
 		
 	}
 	
@@ -339,8 +384,7 @@ public class MigradorService implements MIgracionSucursalService{
 		}
 		
 		ContratoEntity entity = new ContratoEntity();
-		entity.setDiaCorte(null);
-		entity.setDiaPago(null);
+		entity.setFechaProximoPago(formatoFecha.parse(obtenerFechaPago(clienteEntity)));
 		entity.setEstatus(estatusContratoEntity);
 		entity.setFechaRegistro(formatoFecha.parse(obtenerFechIngreso(clienteEntity)));
 		entity.setIdContratoAnterior(clienteEntity.getNum_contrato());
@@ -422,6 +466,33 @@ public class MigradorService implements MIgracionSucursalService{
 			sbFechaIngreso.append(clienteEntity.getFia_cliente());
 			
 		}
+		return sbFechaIngreso.toString();
+	}
+	
+	/**
+	 * 
+	 * @param clienteEntity
+	 * @return
+	 */
+	private String obtenerFechaPago(ClienteOldEntity clienteEntity) {
+		StringBuilder sbFechaIngreso = new StringBuilder();
+		if(clienteEntity.getFcd_cliente() != null && clienteEntity.getFcd_cliente() > 0 &&
+				clienteEntity.getFcm_cliente() != null && !clienteEntity.getFcm_cliente().isBlank() && Long.parseLong(clienteEntity.getFcm_cliente().trim()) > 0 &&
+						clienteEntity.getFca_cliente() != null && clienteEntity.getFca_cliente() > 0) {
+			if(clienteEntity.getFcd_cliente().longValue() < 10) {
+				sbFechaIngreso.append("0").append(clienteEntity.getFcd_cliente() );
+			}else {
+				sbFechaIngreso.append(clienteEntity.getFcd_cliente() );
+			}
+			sbFechaIngreso.append("/");
+			if(Long.parseLong(clienteEntity.getFcm_cliente().trim()) < 10) {
+				sbFechaIngreso.append("0").append(clienteEntity.getFcm_cliente().trim());
+			}else {
+				sbFechaIngreso.append(clienteEntity.getFcm_cliente().trim());
+			}
+			sbFechaIngreso.append("/");
+			sbFechaIngreso.append(clienteEntity.getFca_cliente() );		
+			}
 		return sbFechaIngreso.toString();
 	}
 
