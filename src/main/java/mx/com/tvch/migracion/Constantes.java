@@ -58,5 +58,7 @@ public class Constantes {
 	public static final long TIPO_TERMINAL_ONU = 1;
 	public static final long TIPO_TERMINAL_ONT = 2;
 	
+	public static final long TIPO_SERVICIO_TV = 1;
+	public static final long TIPO_SERVICIO_TV_INTERNET = 2;
 	
 }

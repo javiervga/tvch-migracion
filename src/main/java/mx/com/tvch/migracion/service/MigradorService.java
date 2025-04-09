@@ -35,6 +35,7 @@ import mx.com.tvch.migracion.entity.tvch.EstatusPlacaEntity;
 import mx.com.tvch.migracion.entity.tvch.SuscriptorEntity;
 import mx.com.tvch.migracion.entity.tvch.TerminalEntity;
 import mx.com.tvch.migracion.entity.tvch.TerminalesxContratoEntity;
+import mx.com.tvch.migracion.entity.tvch.TipoServicioEntity;
 import mx.com.tvch.migracion.entity.tvch.TipoTerminalEntity;
 import mx.com.tvch.migracion.entity.tvch.UsuarioEntity;
 import mx.com.tvch.migracion.repository.old.ClienteOldRepository;
@@ -56,6 +57,7 @@ import mx.com.tvch.migracion.repository.tvch.TerminalRepository;
 import mx.com.tvch.migracion.repository.tvch.PlacaRepository;
 import mx.com.tvch.migracion.repository.tvch.PlacasxContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.TerminalesxContratoRepository;
+import mx.com.tvch.migracion.repository.tvch.TipoServicioRepository;
 import mx.com.tvch.migracion.repository.tvch.TipoTerminalRepository;
 import mx.com.tvch.migracion.repository.tvch.UsuarioRepository;
 
@@ -130,6 +132,9 @@ public class MigradorService implements MIgracionSucursalService{
 	
 	@Value("${tvch.user.id.instalador}")
 	private Long usuarioIdTvch;
+	
+	@Autowired
+	private TipoServicioRepository tipoServicioRepository;
 	
 	@Override
 	public long count() throws Exception {
@@ -327,12 +332,25 @@ public class MigradorService implements MIgracionSucursalService{
 				}
 			}
 			
+			TipoServicioEntity tipoServicioEntity = null;
+			double costoInstalacion = 0;
+			if(clienteEntity.getSer_cliente().contains("INTERNET")) {
+				tipoServicioEntity = tipoServicioRepository.findById(Constantes.TIPO_SERVICIO_TV_INTERNET).get();
+				costoInstalacion = 150;
+			}
+			else {
+				tipoServicioEntity = tipoServicioRepository.findById(Constantes.TIPO_SERVICIO_TV).get();
+				costoInstalacion = 100;
+			}
+			
 			ServicioEntity entity = new ServicioEntity();
 			entity.setCosto(costo);
+			entity.setCostoInstalacion(costoInstalacion);
 			entity.setDescripcion(clienteEntity.getSer_cliente());
 			entity.setEstatus(1);//activo
 			entity.setNombre(clienteEntity.getSer_cliente());
 			entity.setZona(sucursalEntity.getZona());
+			entity.setTipoServicio(tipoServicioEntity);
 			servicioRepository.save(entity);
 			
 			ServiciosxContratoEntity serviciosxContratoEntity = new ServiciosxContratoEntity();
