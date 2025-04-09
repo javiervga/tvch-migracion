@@ -12,6 +12,7 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import mx.com.tvch.migracion.Constantes;
@@ -127,6 +128,9 @@ public class MigradorService implements MIgracionSucursalService{
 	@Autowired
 	private PlacasxContratoRepository placasxContratoRepository;
 	
+	@Value("${tvch.user.id.instalador}")
+	private Long usuarioIdTvch;
+	
 	@Override
 	public long count() throws Exception {
 		// TODO Auto-generated method stub
@@ -150,7 +154,7 @@ public class MigradorService implements MIgracionSucursalService{
 		}
 		
 		//Paso 3 -> obtener de la BD TVCH el entity del usuario con que se van a registrar todo
-		UsuarioEntity usuarioEntity = usuarioRepository.findById(2L).orElseThrow(()->new Exception("Usuario Id 2 no encontrado en TVCH"));
+		UsuarioEntity usuarioEntity = usuarioRepository.findById(usuarioIdTvch).orElseThrow(()->new Exception("Usuario Id no encontrado en TVCH"));
 				
 		//Paso 4 -> recuperar todos los clientes de la base anterior
 		List<ClienteOldEntity> clientes = 
