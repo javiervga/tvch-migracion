@@ -33,11 +33,18 @@ public class ServicioEntity {
 	@Column(name = "costo")
 	private Double costo;
 	
+	@Column(name = "costo_instalacion")
+	private Double costoInstalacion;
+	
 	@Column(name = "estatus")
 	private Integer estatus;
 	
 	@ManyToOne
 	@JoinColumn(name = "id_zona", referencedColumnName = "id_zona")
 	private ZonaEntity zona;
+	
+	@ManyToOne
+	@JoinColumn(name = "id_tipo_servicio", referencedColumnName = "id_tipo_servicio")
+	private TipoServicioEntity tipoServicio;
 
 }

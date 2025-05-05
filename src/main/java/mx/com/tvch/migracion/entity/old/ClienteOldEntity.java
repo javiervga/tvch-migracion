@@ -73,4 +73,5 @@ public class ClienteOldEntity {
 	@Column(name = "com_cliente")
 	private String com_cliente;
 
+
 }

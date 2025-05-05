@@ -26,7 +26,7 @@ public class TerminalEntity {
 	private Long id;
 	
 	@ManyToOne
-	@JoinColumn(name = "id_tipo", referencedColumnName = "id_tipo_terminal")
+	@JoinColumn(name = "id_tipo_terminal", referencedColumnName = "id_tipo_terminal")
 	private TipoTerminalEntity tipo;
 	
 	@Column(name = "serie")
@@ -42,7 +42,7 @@ public class TerminalEntity {
 	private String nap;
 	
 	@ManyToOne
-	@JoinColumn(name = "id_estatus", referencedColumnName = "id_estatus_terminal")
+	@JoinColumn(name = "id_estatus_terminal", referencedColumnName = "id_estatus_terminal")
 	private EstatusTerminalEntity estatus;
 	
 	@ManyToOne
