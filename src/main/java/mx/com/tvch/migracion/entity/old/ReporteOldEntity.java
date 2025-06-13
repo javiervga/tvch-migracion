@@ -28,16 +28,4 @@ public class ReporteOldEntity {
 	@Column(name = "tvs")
 	private String tvs;
 	
-	/*@Column(name = "sn")
-	private String sn;
-	
-	@Column(name = "ip")
-	private String ip;
-	
-	@Column(name = "vlan")
-	private String vlan;
-	
-	@Column(name = "nap")
-	private String nap;  */
-
 }

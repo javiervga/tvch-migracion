@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import mx.com.tvch.migracion.Constantes;
 import mx.com.tvch.migracion.entity.old.ClienteOldEntity;
-import mx.com.tvch.migracion.entity.old.CostosOldEntity;
 import mx.com.tvch.migracion.entity.old.ReporteOldEntity;
 import mx.com.tvch.migracion.entity.tvch.ContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.ContratosxSuscriptorEntity;
@@ -39,7 +38,6 @@ import mx.com.tvch.migracion.entity.tvch.TipoServicioEntity;
 import mx.com.tvch.migracion.entity.tvch.TipoTerminalEntity;
 import mx.com.tvch.migracion.entity.tvch.UsuarioEntity;
 import mx.com.tvch.migracion.repository.old.ClienteOldRepository;
-import mx.com.tvch.migracion.repository.old.CostosOldRepository;
 import mx.com.tvch.migracion.repository.old.ReporteOldRepository;
 import mx.com.tvch.migracion.repository.tvch.ContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.ContratosxSuscriptorRepository;
@@ -99,10 +97,7 @@ public class MigradorService implements MIgracionSucursalService{
 	
 	@Autowired
 	private ServiciosxContratoRepository serviciosxContratoRepository;
-	
-	@Autowired
-	private CostosOldRepository costosRepository;
-	
+		
 	@Autowired
 	private EstatusTerminalRepository estatusTerminalRepository;
 	
@@ -147,14 +142,14 @@ public class MigradorService implements MIgracionSucursalService{
 		// TODO Auto-generated method stub
 		
 		//Paso 1 -> Obtener el registro de la sucursal de la nueva BD
-		SucursalEntity sucursalEntity = sucursalRepository.findById(Constantes.ATOTONILCO).orElseThrow(()->new Exception("Sucursal No encontrada en BD TVCH"));
+		SucursalEntity sucursalEntity = sucursalRepository.findById(Constantes.REAL_DEL_MONTE).orElseThrow(()->new Exception("Sucursal No encontrada en BD TVCH"));
 		
 		//Paso 2 -> recuperar todos los suscriptores de la nueva base y validar para asegurarnos que no dupliquemos
 		List<SuscriptorEntity> suscriptoresExistentes = 
 				StreamSupport.stream(Spliterators.spliteratorUnknownSize(suscriptorRepository.findAll().iterator(), Spliterator.ORDERED), false)
 				.collect(Collectors.toList());
 		
-		if(suscriptoresExistentes.stream().anyMatch(s -> s.getSucursal().equals(Constantes.ATOTONILCO))) {
+		if(suscriptoresExistentes.stream().anyMatch(s -> s.getSucursal().equals(Constantes.REAL_DEL_MONTE))) {
 			throw new Exception("Ya existen clientes registrados con la sucursal solicitada");
 		}
 		
@@ -323,14 +318,6 @@ public class MigradorService implements MIgracionSucursalService{
 			
 			//buscar si existe un costo para el servicio que trae el cliente
 			Double costo = 0.0;
-			Optional<CostosOldEntity> costoOld = costosRepository.findByServicio(clienteEntity.getSer_cliente());
-			if(costoOld.isPresent() && !costoOld.get().getCosto().isBlank()) {
-				try {
-					costo = Double.parseDouble(costoOld.get().getCosto());
-				}catch(Exception e) {
-					
-				}
-			}
 			
 			TipoServicioEntity tipoServicioEntity = null;
 			double costoInstalacion = 0;

@@ -72,15 +72,6 @@ public class ClienteOldEntity {
 	
 	@Column(name = "com_cliente")
 	private String com_cliente;
-	
-	@Column(name = "cajero")
-	private String cajero;
-	
-	@Column(name = "fecha")
-	private String fecha;
-	
-	@Column(name = "hora")
-	private String hora;
 
 
 }
