@@ -59,5 +59,27 @@ public class Utilerias {
 			throw new Exception("Zona no encontrada para sucursal: "+sucursalId);
 	
 	}
+	
+	public Integer obtenerNumeroTvs(String cadenaComentarios) {
+		
+		StringBuilder sb = new StringBuilder();
+		Integer tvs = null;
+		
+		for (int i = 0; i < cadenaComentarios.length(); i++) {
+            char caracterActual = cadenaComentarios.charAt(i);
+            if (Character.isDigit(caracterActual)) {
+            	sb.append(caracterActual);
+            }
+        }
+		
+		try {
+			tvs = Integer.parseInt(sb.toString());
+		}catch(NumberFormatException nfe) {
+			
+		}
+		
+		return tvs;
+		
+	}
 
 }
