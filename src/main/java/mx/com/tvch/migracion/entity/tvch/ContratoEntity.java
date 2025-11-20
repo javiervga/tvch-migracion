@@ -45,6 +45,15 @@ public class ContratoEntity {
 	@Column(name = "fecha_proximo_pago")
 	private Date fechaProximoPago;
 	
+	@Column(name = "dia_primer_pago")
+	private Integer diaPrimerPago;
+	
+	@Column(name = "mes_primer_pago")
+	private Integer mesPrimerPago;
+	
+	@Column(name = "anio_primer_pago")
+	private Integer anioPrimerPago;
+	
 	@Column(name = "folio_placa")
 	private Long folioPlaca;
 	

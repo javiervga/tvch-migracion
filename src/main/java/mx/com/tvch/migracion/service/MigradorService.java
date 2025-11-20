@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -399,7 +401,9 @@ public class MigradorService implements MIgracionSucursalService{
 		tvsContratadas = util.obtenerNumeroTvs(clienteEntity.getCom_cliente());
 		
 		ContratoEntity entity = new ContratoEntity();
-		entity.setFechaProximoPago(formatoFecha.parse(obtenerFechaPago(clienteEntity)));
+		
+		Date fechaProximoPago = formatoFecha.parse(obtenerFechaPago(clienteEntity));
+		entity.setFechaProximoPago(fechaProximoPago);
 		entity.setEstatus(estatusContratoEntity);
 		entity.setFechaRegistro(formatoFecha.parse(obtenerFechIngreso(clienteEntity)));
 		entity.setFolioContrato(clienteEntity.getNum_contrato());
@@ -407,6 +411,14 @@ public class MigradorService implements MIgracionSucursalService{
 		entity.setUsuario(usuarioEntity);
 		entity.setFolioPlaca(clienteEntity.getNum_contrato());
 		entity.setColorPlaca("");
+		entity.setDiaPrimerPago(sucursalEntity.getDiaCorte());
+		
+		Calendar fechaPagoCal = Calendar.getInstance();
+		fechaPagoCal.setTime(fechaProximoPago);
+		fechaPagoCal.add(1, Calendar.MONTH); //sumar un mes
+		entity.setMesPrimerPago(fechaPagoCal.get(Calendar.MONTH)+1);
+		entity.setAnioPrimerPago(fechaPagoCal.get(Calendar.YEAR));
+		
 		return entity;
 	}
 	
