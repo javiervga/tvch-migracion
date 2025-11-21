@@ -405,7 +405,8 @@ public class MigradorService implements MIgracionSucursalService{
 		Date fechaProximoPago = formatoFecha.parse(obtenerFechaPago(clienteEntity));
 		entity.setFechaProximoPago(fechaProximoPago);
 		entity.setEstatus(estatusContratoEntity);
-		entity.setFechaRegistro(formatoFecha.parse(obtenerFechIngreso(clienteEntity)));
+		Date fechaRegistro = formatoFecha.parse(obtenerFechIngreso(clienteEntity));
+		entity.setFechaRegistro(fechaRegistro);
 		entity.setFolioContrato(clienteEntity.getNum_contrato());
 		entity.setTvsContratadas(tvsContratadas);
 		entity.setUsuario(usuarioEntity);
@@ -414,8 +415,8 @@ public class MigradorService implements MIgracionSucursalService{
 		entity.setDiaPrimerPago(sucursalEntity.getDiaCorte());
 		
 		Calendar fechaPagoCal = Calendar.getInstance();
-		fechaPagoCal.setTime(fechaProximoPago);
-		fechaPagoCal.add(1, Calendar.MONTH); //sumar un mes
+		fechaPagoCal.setTime(fechaRegistro);
+		fechaPagoCal.add(Calendar.MONTH, 1); //sumar un mes
 		entity.setMesPrimerPago(fechaPagoCal.get(Calendar.MONTH)+1);
 		entity.setAnioPrimerPago(fechaPagoCal.get(Calendar.YEAR));
 		

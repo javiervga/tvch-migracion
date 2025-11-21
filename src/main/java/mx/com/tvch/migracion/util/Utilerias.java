@@ -65,17 +65,21 @@ public class Utilerias {
 		StringBuilder sb = new StringBuilder();
 		Integer tvs = null;
 		
-		for (int i = 0; i < cadenaComentarios.length(); i++) {
-            char caracterActual = cadenaComentarios.charAt(i);
-            if (Character.isDigit(caracterActual)) {
-            	sb.append(caracterActual);
-            }
-        }
+		if(cadenaComentarios != null && cadenaComentarios.length() > 0) {
 		
-		try {
-			tvs = Integer.parseInt(sb.toString());
-		}catch(NumberFormatException nfe) {
+			for (int i = 0; i < cadenaComentarios.length(); i++) {
+				char caracterActual = cadenaComentarios.charAt(i);
+				if (Character.isDigit(caracterActual)) {
+					sb.append(caracterActual);
+				}
+			}
+		
+			try {
+				tvs = Integer.parseInt(sb.toString());
+			}catch(NumberFormatException nfe) {
 			
+			}
+		
 		}
 		
 		return tvs;
