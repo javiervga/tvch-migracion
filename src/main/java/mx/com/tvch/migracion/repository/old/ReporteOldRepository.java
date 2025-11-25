@@ -1,4 +1,4 @@
-package mx.com.tvch.migracion.repository.old;
+/*package mx.com.tvch.migracion.repository.old;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -13,3 +13,4 @@ public interface ReporteOldRepository extends CrudRepository<ReporteOldEntity, L
 	public Iterable<ReporteOldEntity> findByContrato(@Param("contrato") String contrato);
 
 }
+*/

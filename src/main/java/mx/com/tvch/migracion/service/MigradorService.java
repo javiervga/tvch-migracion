@@ -1,11 +1,12 @@
 package mx.com.tvch.migracion.service;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -17,49 +18,36 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import mx.com.tvch.migracion.Constantes;
 import mx.com.tvch.migracion.entity.old.ClienteOldEntity;
-import mx.com.tvch.migracion.entity.old.ReporteOldEntity;
+//import mx.com.tvch.migracion.entity.old.ReporteOldEntity;
 import mx.com.tvch.migracion.entity.tvch.ContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.ContratosxSuscriptorEntity;
 import mx.com.tvch.migracion.entity.tvch.DomicilioEntity;
 import mx.com.tvch.migracion.entity.tvch.DomiciliosxContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.EstatusContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.EstatusSuscriptorEntity;
-import mx.com.tvch.migracion.entity.tvch.EstatusTerminalEntity;
-import mx.com.tvch.migracion.entity.tvch.PlacaEntity;
-import mx.com.tvch.migracion.entity.tvch.PlacasxContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.ServicioEntity;
 import mx.com.tvch.migracion.entity.tvch.ServiciosxContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.SucursalEntity;
-import mx.com.tvch.migracion.entity.tvch.EstatusPlacaEntity;
 import mx.com.tvch.migracion.entity.tvch.SuscriptorEntity;
-import mx.com.tvch.migracion.entity.tvch.TerminalEntity;
-import mx.com.tvch.migracion.entity.tvch.TerminalesxContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.TipoServicioEntity;
-import mx.com.tvch.migracion.entity.tvch.TipoTerminalEntity;
 import mx.com.tvch.migracion.entity.tvch.UsuarioEntity;
 import mx.com.tvch.migracion.repository.old.ClienteOldRepository;
-import mx.com.tvch.migracion.repository.old.ReporteOldRepository;
+//import mx.com.tvch.migracion.repository.old.ReporteOldRepository;
 import mx.com.tvch.migracion.repository.tvch.ContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.ContratosxSuscriptorRepository;
 import mx.com.tvch.migracion.repository.tvch.DomicilioRepository;
 import mx.com.tvch.migracion.repository.tvch.DomiciliosxContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.EstatusContratoRepository;
-import mx.com.tvch.migracion.repository.tvch.EstatusPlacaRepository;
 import mx.com.tvch.migracion.repository.tvch.EstatusSuscriptorRepository;
-import mx.com.tvch.migracion.repository.tvch.EstatusTerminalRepository;
 import mx.com.tvch.migracion.repository.tvch.ServicioRepository;
 import mx.com.tvch.migracion.repository.tvch.ServiciosxContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.SucursalRepository;
 import mx.com.tvch.migracion.repository.tvch.SuscriptorRepository;
-import mx.com.tvch.migracion.repository.tvch.TerminalRepository;
-import mx.com.tvch.migracion.repository.tvch.PlacaRepository;
-import mx.com.tvch.migracion.repository.tvch.PlacasxContratoRepository;
-import mx.com.tvch.migracion.repository.tvch.TerminalesxContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.TipoServicioRepository;
-import mx.com.tvch.migracion.repository.tvch.TipoTerminalRepository;
 import mx.com.tvch.migracion.repository.tvch.UsuarioRepository;
+import mx.com.tvch.migracion.util.Utilerias;
 
-@Slf4j
+@Slf4j  
 @Service
 public class MigradorService implements MIgracionSucursalService{
 	
@@ -68,8 +56,8 @@ public class MigradorService implements MIgracionSucursalService{
 	@Autowired
 	private ClienteOldRepository clienteRepository;
 	
-	@Autowired
-	private ReporteOldRepository reporteRepository;
+	//@Autowired
+	//private ReporteOldRepository reporteRepository;
 	
 	@Autowired
 	private SuscriptorRepository suscriptorRepository;
@@ -87,6 +75,9 @@ public class MigradorService implements MIgracionSucursalService{
 	private EstatusContratoRepository estatusContratoRepository;
 	
 	@Autowired
+	private TipoServicioRepository tipoServicioRepository;
+	
+	@Autowired
 	private ContratoRepository contratoRepository;
 	
 	@Autowired
@@ -97,19 +88,7 @@ public class MigradorService implements MIgracionSucursalService{
 	
 	@Autowired
 	private ServiciosxContratoRepository serviciosxContratoRepository;
-		
-	@Autowired
-	private EstatusTerminalRepository estatusTerminalRepository;
-	
-	@Autowired
-	private TipoTerminalRepository tipoTerminalRepository;
-	
-	@Autowired
-	private TerminalRepository terminalRepository;
-	
-	@Autowired
-	private TerminalesxContratoRepository terminalesxContratoRepository;
-	
+					
 	@Autowired
 	private DomicilioRepository domicilioRepository;
 
@@ -117,40 +96,49 @@ public class MigradorService implements MIgracionSucursalService{
 	private DomiciliosxContratoRepository domiciliosxContratoRepository;
 	
 	@Autowired
-	private PlacaRepository placaRepository;
-	
-	@Autowired
-	private EstatusPlacaRepository estatusPlacaRepository;
-	
-	@Autowired
-	private PlacasxContratoRepository placasxContratoRepository;
+	private Utilerias util;
 	
 	@Value("${tvch.user.id.instalador}")
 	private Long usuarioIdTvch;
 	
-	@Autowired
-	private TipoServicioRepository tipoServicioRepository;
+	@Value("${tvch.id.sucursal}")
+	private Long sucursalId;
 	
+	@Value("${tvch.sucursal.placa}")
+	private String colorPlaca;
+	
+	int contadorClientes = 0;
+	int contadorNuevosSuscriptores = 0;
+	int contadorNuevosContratos = 0;
+		
 	@Override
 	public long count() throws Exception {
 		// TODO Auto-generated method stub
 		return clienteRepository.count();
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public void migrarSucursal() throws Exception {
 		// TODO Auto-generated method stub
 		
 		//Paso 1 -> Obtener el registro de la sucursal de la nueva BD
-		SucursalEntity sucursalEntity = sucursalRepository.findById(Constantes.REAL_DEL_MONTE).orElseThrow(()->new Exception("Sucursal No encontrada en BD TVCH"));
+		SucursalEntity sucursalEntity = sucursalRepository.findById(sucursalId).orElseThrow(()->new Exception("Sucursal No encontrada en BD TVCH"));
 		
-		//Paso 2 -> recuperar todos los suscriptores de la nueva base y validar para asegurarnos que no dupliquemos
+		//Paso 2 -> consultar si existen registros de suscriptores de la sucursal 
 		List<SuscriptorEntity> suscriptoresExistentes = 
-				StreamSupport.stream(Spliterators.spliteratorUnknownSize(suscriptorRepository.findAll().iterator(), Spliterator.ORDERED), false)
+				StreamSupport.stream(Spliterators.spliteratorUnknownSize(suscriptorRepository.findBySucursal(sucursalEntity).iterator(), Spliterator.ORDERED), false)
 				.collect(Collectors.toList());
 		
-		if(suscriptoresExistentes.stream().anyMatch(s -> s.getSucursal().equals(Constantes.REAL_DEL_MONTE))) {
-			throw new Exception("Ya existen clientes registrados con la sucursal solicitada");
+		if(!suscriptoresExistentes.isEmpty()) {
+			throw new Exception("Ya existen suscriptores pertenecientes a la sucursal "+sucursalEntity.getNombre()+" registrados anteriormente.");
+		}else {
+			StringBuilder sb = new StringBuilder();
+			sb.append("No existen suscriptores registrados en TVCH pertenecientes a la sucursal: ");
+			sb.append(sucursalEntity.getNombre()).append(". Se procedera a registrar todos los suscriptores.");
+			log.info(sb.toString());
 		}
 		
 		//Paso 3 -> obtener de la BD TVCH el entity del usuario con que se van a registrar todo
@@ -161,15 +149,34 @@ public class MigradorService implements MIgracionSucursalService{
 				StreamSupport.stream(Spliterators.spliteratorUnknownSize(clienteRepository.findAll().iterator(), Spliterator.ORDERED), false)
 				.collect(Collectors.toList());
 		
+		if(!clientes.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Se encontraron ").append(clientes.size()).append(" clientes en Bd para ser transferidos a TVCH.");
+			log.info(sb.toString());
+		}
+		
 		//Paso 5 -> procesar cada cliente y realizar los registros necesarios en BD TVCH
+		
 		clientes.forEach(c -> {
 			try {
 				migrarCliente(c,sucursalEntity,usuarioEntity);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				log.error("Error al procesar cliente: "+c.toString());
+				StringWriter sw = new StringWriter();
+	            PrintWriter pw = new PrintWriter(sw);
+	            e.printStackTrace(pw);
+	            String exceptionString = sw.toString();
+	            log.error(exceptionString);
 			}
 		});
+		
+		log.info("Clientes existentes OLD............."+clientes.size());
+		
+		log.info("Total de clientes procesados........"+contadorClientes);
+		log.info("Nuevos suscriptores TVCH............"+contadorNuevosSuscriptores);
+		log.info("Nuevos contratos TVCH..............."+contadorNuevosContratos);
+		
 		
 	}
 	
@@ -179,103 +186,101 @@ public class MigradorService implements MIgracionSucursalService{
 			UsuarioEntity usuarioEntity) 
 					throws Exception{
 		
-		if(clienteOldEntity.getNum_contrato() == 187 || clienteOldEntity.getNum_contrato() == 188) {
-			System.out.println("aca");
-		}
-		
-		//Paso 1 -> validar si ya existe un cliente con el mismo contrato para que no se repita
-		List<SuscriptorEntity> suscriptores = 
-				StreamSupport.stream(Spliterators.spliteratorUnknownSize(suscriptorRepository.findBySucursal(sucursalEntity).iterator(), Spliterator.ORDERED), false)
+		//Paso 1 -> validar por el nombre y apellidos si ya existe un cliente con el mismo contrato para que no se repita
+		List<SuscriptorEntity> suscriptoresSucursal = 
+				StreamSupport.stream(Spliterators
+						.spliteratorUnknownSize(suscriptorRepository
+								.findBySucursal(sucursalEntity).iterator(), Spliterator.ORDERED), false)
 				.collect(Collectors.toList());
-		Optional<SuscriptorEntity> suscriptorExistente = suscriptores.stream()
-				.filter(s -> clienteOldEntity.getNom_cliente().trim().concat(clienteOldEntity.getApe_cliente().trim()).equals(
-				s.getNombre().trim().concat(s.getApellidoPaterno().trim()).concat(" ").concat(s.getApellidoMaterno().trim())))
+				
+		Optional<SuscriptorEntity> suscriptorExistente = suscriptoresSucursal
+				.stream()
+				.filter(s -> clienteOldEntity.getNom_cliente().trim()
+							.replace(" ", "")
+							.concat(clienteOldEntity.getApe_cliente().trim()
+							.replace(" ", ""))
+							.equals(
+									s.getNombre().trim()
+									.replace(" ", "")
+									.concat(s.getApellidoPaterno().trim().replace(" ", ""))
+									.concat(s.getApellidoMaterno().trim().replace(" ", ""))))
 				.findFirst();
 		
+		/*if(clienteOldEntity.getNom_cliente().contains("VIANKA") ||
+				clienteOldEntity.getNom_cliente().contains("ARACELY") ||
+				clienteOldEntity.getNom_cliente().contains("MARCO ANTONIO") ||
+				clienteOldEntity.getNom_cliente().contains("MARÍA FRANCISCA") ||
+				clienteOldEntity.getNom_cliente().contains("ROSARIO")) {
+			log.info("pausar");
+		}*/
+		
+		if(clienteOldEntity.getNom_cliente().contains("JOSHUA")) {
+			log.info("pausar");
+		}
+		
 		if(suscriptorExistente.isPresent()) {
-			//flujo para clientes que ya estan registrados en TVCH
+			//flujo para suscriptores que ya estan registrados en TVCH
 			
-			//validar si el contrato es diferente al q ya tiene registrado 
-			List<ContratosxSuscriptorEntity> contratosxSuscriptorEntities = 
-					StreamSupport.stream(Spliterators.spliteratorUnknownSize(contratosxSuscriptorRepository.findBySuscriptor(suscriptorExistente.get()).iterator(), Spliterator.ORDERED), false)
-					.collect(Collectors.toList());
-			if(contratosxSuscriptorEntities.stream().anyMatch(
-					cs -> cs.getContrato().getIdContratoAnterior().longValue() == clienteOldEntity.getNum_contrato().longValue())) {
-				//ya existe un suscriptor con el mismo numero de contrato anterior
-				//en este caso no se hace nada porque se entiende que esta duplicado el registro
-				log.warn("El cliente con contrato: "+clienteOldEntity.getNum_contrato()+" ya ha sido registrado anteriormente como suscriptor: "+suscriptorExistente.get().getId());			
-			}else {
-				//el numero de contrato anterior es diferente, quiere decir que el cliente tenia mas de un contrato en la antigua base
-				//en este caso solo se registra el nuevo contrato
-				ContratoEntity nuevoContrato = crearContrato(clienteOldEntity, usuarioEntity);
-				contratoRepository.save(nuevoContrato);
-				//crear registro de contratos por suscriptor
-				ContratosxSuscriptorEntity contratosxSuscriptorEntity = crearContratoxSuscriptor(nuevoContrato, suscriptorExistente.get());
-				contratosxSuscriptorRepository.save(contratosxSuscriptorEntity);
-				//si se requiere crear servicio y servicio x contrato
-				validaryCrearServicio(sucursalEntity, clienteOldEntity, nuevoContrato);			
-				//si se requiere crear terminal y terminal x contrato
-				//validaryCrearTerminal(usuarioEntity, nuevoContrato);			
-				//crear domicilio
-				validaryCrearDomicilio(clienteOldEntity, nuevoContrato);
-				//crear placa
-				validaryCrearPlaca(nuevoContrato, clienteOldEntity);
-			}
+			StringBuilder sb = new StringBuilder();
+			sb.append("Actualizando informacion de suscriptor ").append(suscriptorExistente.get().getId()).append(" -> ");
+			sb.append(suscriptorExistente.get().getNombre()).append(" ").append(suscriptorExistente.get().getApellidoPaterno());
+			sb.append(" ").append(suscriptorExistente.get().getApellidoMaterno());
+			log.info(sb.toString());
+			
+			//con el suscriptor encontrado, generar el contrato con el suscriptor encontrado
+
+			//en este caso solo se registra el nuevo contrato
+			ContratoEntity nuevoContrato = crearContrato(clienteOldEntity, usuarioEntity, sucursalEntity);
+			contratoRepository.save(nuevoContrato);
+			
+			//crear registro de contratos por suscriptor
+			ContratosxSuscriptorEntity contratosxSuscriptorEntity = crearContratoxSuscriptor(nuevoContrato, suscriptorExistente.get());
+			contratosxSuscriptorRepository.save(contratosxSuscriptorEntity);
+			
+			//si se requiere crear servicio y servicio x contrato
+			validaryCrearServicio(sucursalEntity, clienteOldEntity, nuevoContrato);			
+		
+			//crear domicilio
+			validaryCrearDomicilio(clienteOldEntity, nuevoContrato, sucursalEntity);
+				
+			contadorNuevosContratos = contadorNuevosContratos +1;				
 			
 			
 		}else {
-			//flujo para clientes que se van a registrar en TVCH
+			
+			//flujo para clientes nuevos que se van a registrar en TVCH
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append("Registrando nuevo suscriptor ").append(clienteOldEntity.getNom_cliente()).append(" ");
+			sb.append(clienteOldEntity.getApe_cliente()).append(" con numero de contrato ").append(clienteOldEntity.getNum_contrato());
+			log.info(sb.toString());
 			
 			//crear registro de contrato
-			ContratoEntity nuevoContrato = crearContrato(clienteOldEntity, usuarioEntity);
+			ContratoEntity nuevoContrato = crearContrato(clienteOldEntity, usuarioEntity, sucursalEntity);
 			contratoRepository.save(nuevoContrato);
+			
 			//crear registro de suscriptor
 			SuscriptorEntity nuevoSuscriptor = crearSuscriptor(clienteOldEntity, sucursalEntity, usuarioEntity, nuevoContrato);
 			suscriptorRepository.save(nuevoSuscriptor);
+			
 			//crear registro de contratos por suscriptor
 			ContratosxSuscriptorEntity contratosxSuscriptorEntity = crearContratoxSuscriptor(nuevoContrato, nuevoSuscriptor);
 			contratosxSuscriptorRepository.save(contratosxSuscriptorEntity);
+			
 			//si se requiere crear servicio y servicio x contrato
 			validaryCrearServicio(sucursalEntity, clienteOldEntity, nuevoContrato);			
-			//si se requiere crear terminal y terminal x contrato
-			//validaryCrearTerminal(usuarioEntity, nuevoContrato);			
+
 			//crear domicilio
-			validaryCrearDomicilio(clienteOldEntity, nuevoContrato);
-			//crear placa
-			validaryCrearPlaca(nuevoContrato, clienteOldEntity);
+			validaryCrearDomicilio(clienteOldEntity, nuevoContrato, sucursalEntity);
+			
+			contadorNuevosSuscriptores = contadorNuevosSuscriptores + 1;
+			contadorNuevosContratos = contadorNuevosContratos + 1;
 		}
 		
-		
+		contadorClientes = contadorClientes + 1;
 	}
 	
-	private void validaryCrearPlaca(ContratoEntity contratoEntity, ClienteOldEntity clienteOldEntity) {
-		
-		EstatusPlacaEntity estatusPlacaEntity = null;
-		if(contratoEntity.getEstatus().getDescripcion().contains("ACTIVO") || 
-				contratoEntity.getEstatus().getDescripcion().contains("CORTESIA") ||
-				contratoEntity.getEstatus().getDescripcion().contains("CORTE") ||
-				contratoEntity.getEstatus().getDescripcion().contains("RETIRO")) {
-			estatusPlacaEntity = estatusPlacaRepository.findById(2L).get(); //instalada
-		}else if(contratoEntity.getEstatus().getDescripcion().contains("RETIRADO")) {
-			estatusPlacaEntity = estatusPlacaRepository.findById(4L).get();  //baja
-		}else {
-			estatusPlacaEntity = estatusPlacaRepository.findById(1L).get();  //nueva
-		}
-		
-		PlacaEntity placaEntity = new PlacaEntity();
-		placaEntity.setColor("");
-		placaEntity.setEstatus(estatusPlacaEntity);
-		placaEntity.setFolio(String.valueOf(clienteOldEntity.getNum_contrato()));
-		placaRepository.save(placaEntity);
-		
-		PlacasxContratoEntity placasxContratoEntity = new PlacasxContratoEntity();
-		placasxContratoEntity.setContrato(contratoEntity);
-		placasxContratoEntity.setPlaca(placaEntity);
-		placasxContratoRepository.save(placasxContratoEntity);
-		
-	}
-	
-	private void validaryCrearDomicilio(ClienteOldEntity clienteEntity, ContratoEntity contratoEntity) {
+	private void validaryCrearDomicilio(ClienteOldEntity clienteEntity, ContratoEntity contratoEntity, SucursalEntity sucursalEntity) {
 		
 		DomicilioEntity domicilioEntity = new DomicilioEntity();
 		domicilioEntity.setCalle(clienteEntity.getCal_cliente());
@@ -314,7 +319,6 @@ public class MigradorService implements MIgracionSucursalService{
 			serviciosxContratoRepository.save(serviciosxContratoEntity);
 		}else {
 			//si el servicio no existe se crea primero y despues se inserta en servicios x contrato
-			
 			
 			//buscar si existe un costo para el servicio que trae el cliente
 			Double costo = 0.0;
@@ -364,7 +368,8 @@ public class MigradorService implements MIgracionSucursalService{
 	
 	private ContratoEntity crearContrato(
 			ClienteOldEntity clienteEntity,
-			UsuarioEntity usuarioEntity) throws Exception{
+			UsuarioEntity usuarioEntity,
+			SucursalEntity sucursalEntity) throws Exception{
 		
 		//Primero buscar si el estatus existe en TVCH
 		EstatusContratoEntity estatusContratoEntity = null;
@@ -379,7 +384,7 @@ public class MigradorService implements MIgracionSucursalService{
 		
 		//recuperar el ultimo registro de la tabla reporte con el numero de contrato anterior
 		Integer tvsContratadas = null;
-		List<ReporteOldEntity> reportesCliente = 
+		/*List<ReporteOldEntity> reportesCliente = 
 				StreamSupport.stream(Spliterators.spliteratorUnknownSize(reporteRepository.findByContrato(String.valueOf(clienteEntity.getNum_contrato())).iterator(), Spliterator.ORDERED), false)
 				.collect(Collectors.toList());
 		ReporteOldEntity reporteExistente = null;
@@ -390,15 +395,31 @@ public class MigradorService implements MIgracionSucursalService{
 			}catch(Exception e) {
 				//log.warn("Error al obtener tvs contratadas de reporte: "+reporteExistente.toString());
 			}
-		}
+		}*/
+		
+		//recuperar el numero de tvs del campo de los comentarios
+		tvsContratadas = util.obtenerNumeroTvs(clienteEntity.getCom_cliente());
 		
 		ContratoEntity entity = new ContratoEntity();
-		entity.setFechaProximoPago(formatoFecha.parse(obtenerFechaPago(clienteEntity)));
+		
+		Date fechaProximoPago = formatoFecha.parse(obtenerFechaPago(clienteEntity));
+		entity.setFechaProximoPago(fechaProximoPago);
 		entity.setEstatus(estatusContratoEntity);
-		entity.setFechaRegistro(formatoFecha.parse(obtenerFechIngreso(clienteEntity)));
-		entity.setIdContratoAnterior(clienteEntity.getNum_contrato());
+		Date fechaRegistro = formatoFecha.parse(obtenerFechIngreso(clienteEntity));
+		entity.setFechaRegistro(fechaRegistro);
+		entity.setFolioContrato(clienteEntity.getNum_contrato());
 		entity.setTvsContratadas(tvsContratadas);
 		entity.setUsuario(usuarioEntity);
+		entity.setFolioPlaca(clienteEntity.getNum_contrato());
+		entity.setColorPlaca("");
+		entity.setDiaPrimerPago(sucursalEntity.getDiaCorte());
+		
+		Calendar fechaPagoCal = Calendar.getInstance();
+		fechaPagoCal.setTime(fechaRegistro);
+		fechaPagoCal.add(Calendar.MONTH, 1); //sumar un mes
+		entity.setMesPrimerPago(fechaPagoCal.get(Calendar.MONTH)+1);
+		entity.setAnioPrimerPago(fechaPagoCal.get(Calendar.YEAR));
+		
 		return entity;
 	}
 	
@@ -421,14 +442,24 @@ public class MigradorService implements MIgracionSucursalService{
 		String apellidoMaterno = "";
 		if(clienteEntity.getApe_cliente() != null && !clienteEntity.getApe_cliente().isBlank()) {
 			String[] apellidos = clienteEntity.getApe_cliente().split(" ");
-			if(apellidos.length > 0) {
-				if(apellidos.length > 1) {
-					apellidoPaterno = apellidos[0];
-					apellidoMaterno = apellidos[1];
-				}
-			}else {
-				apellidoPaterno = clienteEntity.getApe_cliente();
-			}
+			List<String> apellidosSinEspacios = Arrays.asList(apellidos).stream().filter(e -> !e.isBlank()).collect(Collectors.toList());
+			if(apellidosSinEspacios.size() > 0) {
+				//if(apellidosSinEspacios.size() > 1) {
+					apellidoPaterno = apellidosSinEspacios.get(0);
+					boolean esPaterno = true;
+					for(String ap : apellidosSinEspacios) {
+						if(!esPaterno) {
+							if(apellidoMaterno.isBlank())
+								apellidoMaterno = ap;
+							else
+								apellidoMaterno = apellidoMaterno.concat(" ").concat(ap);
+						}
+						esPaterno = false;
+					}	
+				//}
+			}//else {
+				//apellidoPaterno = clienteEntity.getApe_cliente();
+			//}
 		}
 		
 		EstatusSuscriptorEntity estatusSuscriptorEntity = null;

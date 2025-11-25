@@ -25,8 +25,8 @@ public class ContratoEntity {
 	@Column(name = "id_contrato")
 	private Long id;
 	
-	@Column(name = "id_contrato_anterior")
-	private Long idContratoAnterior;
+	@Column(name = "folio_contrato")
+	private Long folioContrato;
 	
 	@ManyToOne
 	@JoinColumn(name = "id_estatus", referencedColumnName = "id_estatus")
@@ -44,5 +44,20 @@ public class ContratoEntity {
 	
 	@Column(name = "fecha_proximo_pago")
 	private Date fechaProximoPago;
+	
+	@Column(name = "dia_primer_pago")
+	private Integer diaPrimerPago;
+	
+	@Column(name = "mes_primer_pago")
+	private Integer mesPrimerPago;
+	
+	@Column(name = "anio_primer_pago")
+	private Integer anioPrimerPago;
+	
+	@Column(name = "folio_placa")
+	private Long folioPlaca;
+	
+	@Column(name = "color_placa")
+	private String colorPlaca;
 	
 }

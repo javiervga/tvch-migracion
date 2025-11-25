@@ -1,4 +1,4 @@
-package mx.com.tvch.migracion.entity.old;
+/*package mx.com.tvch.migracion.entity.old;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -28,4 +28,4 @@ public class ReporteOldEntity {
 	@Column(name = "tvs")
 	private String tvs;
 	
-}
+}*/

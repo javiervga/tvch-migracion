@@ -30,6 +30,9 @@ public class SucursalEntity {
 	@Column(name = "nombre")
 	private String nombre;
 	
+	@Column(name = "dia_corte")
+	private Integer diaCorte;
+	
 	@Column(name = "fecha_registro")
 	private Date fechaRegistro;
 	
