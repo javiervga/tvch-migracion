@@ -1,5 +1,8 @@
 package mx.com.tvch.migracion.util;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,6 +39,15 @@ public class Utilerias {
 	@Autowired
 	@Qualifier("sucursalesZonaMineral")
 	private List<Long> sucursalesZonaMineral;
+	
+	public Long generarIdSucursal(Long idSucursal) {
+
+        LocalDateTime ld = LocalDateTime.now(ZoneId.of("America/Mexico_City"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+        String cadenaId = String.valueOf(idSucursal).concat(ld.format(formatter));
+        return Long.valueOf(cadenaId);
+
+    }
 	
 	public Long obtenerZonaId(Long sucursalId) throws Exception{
 		

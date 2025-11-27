@@ -25,6 +25,9 @@ public class SuscriptorEntity {
 	@Column(name = "id_suscriptor")
 	private Long id;
 	
+	@Column(name = "id_suscriptor_sucursal")
+	private Long idSucursal;
+	
 	@ManyToOne
 	@JoinColumn(name = "id_sucursal", referencedColumnName = "id_sucursal")
 	private SucursalEntity sucursal;

@@ -23,6 +23,9 @@ public class DomicilioEntity {
 	@Column(name = "id_domicilio ")
 	private Long id;
 	
+	@Column(name = "id_domicilio_sucursal")
+	private Long idSucursal;
+	
 	@Column(name = "colonia")
 	private String colonia;
 	

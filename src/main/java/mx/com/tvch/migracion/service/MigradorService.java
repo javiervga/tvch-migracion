@@ -283,6 +283,7 @@ public class MigradorService implements MIgracionSucursalService{
 	private void validaryCrearDomicilio(ClienteOldEntity clienteEntity, ContratoEntity contratoEntity, SucursalEntity sucursalEntity) {
 		
 		DomicilioEntity domicilioEntity = new DomicilioEntity();
+		domicilioEntity.setIdSucursal(util.generarIdSucursal(sucursalId));
 		domicilioEntity.setCalle(clienteEntity.getCal_cliente());
 		domicilioEntity.setColonia(clienteEntity.getCol_cliente());
 		domicilioEntity.setEstatus(1); //activo
@@ -403,6 +404,7 @@ public class MigradorService implements MIgracionSucursalService{
 		ContratoEntity entity = new ContratoEntity();
 		
 		Date fechaProximoPago = formatoFecha.parse(obtenerFechaPago(clienteEntity));
+		entity.setIdSucursal(util.generarIdSucursal(sucursalId));
 		entity.setFechaProximoPago(fechaProximoPago);
 		entity.setEstatus(estatusContratoEntity);
 		Date fechaRegistro = formatoFecha.parse(obtenerFechIngreso(clienteEntity));
@@ -470,6 +472,7 @@ public class MigradorService implements MIgracionSucursalService{
 		}
 		
 		SuscriptorEntity entity = new SuscriptorEntity();
+		entity.setIdSucursal(util.generarIdSucursal(sucursalId));
 		entity.setApellidoMaterno(apellidoMaterno);
 		entity.setApellidoPaterno(apellidoPaterno);
 		entity.setEstatus(estatusSuscriptorEntity);

@@ -25,6 +25,9 @@ public class ContratoEntity {
 	@Column(name = "id_contrato")
 	private Long id;
 	
+	@Column(name = "id_contrato_sucursal")
+	private Long idSucursal;
+	
 	@Column(name = "folio_contrato")
 	private Long folioContrato;
 	
