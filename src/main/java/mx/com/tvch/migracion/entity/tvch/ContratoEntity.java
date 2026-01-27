@@ -63,4 +63,8 @@ public class ContratoEntity {
 	@Column(name = "color_placa")
 	private String colorPlaca;
 	
+	@ManyToOne
+	@JoinColumn(name = "id_onu", referencedColumnName = "id_onu")
+	private OnuEntity onu;
+	
 }

@@ -24,7 +24,9 @@ import mx.com.tvch.migracion.entity.tvch.ContratosxSuscriptorEntity;
 import mx.com.tvch.migracion.entity.tvch.DomicilioEntity;
 import mx.com.tvch.migracion.entity.tvch.DomiciliosxContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.EstatusContratoEntity;
+import mx.com.tvch.migracion.entity.tvch.EstatusOnuEntity;
 import mx.com.tvch.migracion.entity.tvch.EstatusSuscriptorEntity;
+import mx.com.tvch.migracion.entity.tvch.OnuEntity;
 import mx.com.tvch.migracion.entity.tvch.ServicioEntity;
 import mx.com.tvch.migracion.entity.tvch.ServiciosxContratoEntity;
 import mx.com.tvch.migracion.entity.tvch.SucursalEntity;
@@ -39,6 +41,7 @@ import mx.com.tvch.migracion.repository.tvch.DomicilioRepository;
 import mx.com.tvch.migracion.repository.tvch.DomiciliosxContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.EstatusContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.EstatusSuscriptorRepository;
+import mx.com.tvch.migracion.repository.tvch.OnuRepository;
 import mx.com.tvch.migracion.repository.tvch.ServicioRepository;
 import mx.com.tvch.migracion.repository.tvch.ServiciosxContratoRepository;
 import mx.com.tvch.migracion.repository.tvch.SucursalRepository;
@@ -96,6 +99,9 @@ public class MigradorService implements MIgracionSucursalService{
 	private DomiciliosxContratoRepository domiciliosxContratoRepository;
 	
 	@Autowired
+	private OnuRepository onuRepository;
+	
+	@Autowired
 	private Utilerias util;
 	
 	@Value("${tvch.user.id.instalador}")
@@ -110,6 +116,10 @@ public class MigradorService implements MIgracionSucursalService{
 	int contadorClientes = 0;
 	int contadorNuevosSuscriptores = 0;
 	int contadorNuevosContratos = 0;
+	
+	private EstatusOnuEntity estatusOnuEntity = new EstatusOnuEntity();
+	
+	
 		
 	@Override
 	public long count() throws Exception {
@@ -123,6 +133,9 @@ public class MigradorService implements MIgracionSucursalService{
 	@Override
 	public void migrarSucursal() throws Exception {
 		// TODO Auto-generated method stub
+		
+		estatusOnuEntity.setEstatusId(Constantes.ESTATUS_ONU_ASIGNADA);
+		estatusOnuEntity.setDescripcion("ASIGNADA");
 		
 		//Paso 1 -> Obtener el registro de la sucursal de la nueva BD
 		SucursalEntity sucursalEntity = sucursalRepository.findById(sucursalId).orElseThrow(()->new Exception("Sucursal No encontrada en BD TVCH"));
@@ -242,6 +255,9 @@ public class MigradorService implements MIgracionSucursalService{
 		
 			//crear domicilio
 			validaryCrearDomicilio(clienteOldEntity, nuevoContrato, sucursalEntity);
+			
+			//crear onu
+			validaryCrearOnu(clienteOldEntity, nuevoContrato, sucursalEntity, usuarioEntity);
 				
 			contadorNuevosContratos = contadorNuevosContratos +1;				
 			
@@ -273,11 +289,34 @@ public class MigradorService implements MIgracionSucursalService{
 			//crear domicilio
 			validaryCrearDomicilio(clienteOldEntity, nuevoContrato, sucursalEntity);
 			
+			//crear onu
+			validaryCrearOnu(clienteOldEntity, nuevoContrato, sucursalEntity, usuarioEntity);
+			
 			contadorNuevosSuscriptores = contadorNuevosSuscriptores + 1;
 			contadorNuevosContratos = contadorNuevosContratos + 1;
 		}
 		
 		contadorClientes = contadorClientes + 1;
+	}
+	
+	private void validaryCrearOnu(ClienteOldEntity clienteEntity, ContratoEntity contratoEntity, SucursalEntity sucursalEntity, UsuarioEntity usuarioEntity) {
+		
+		if(clienteEntity.getOnu() != null && !clienteEntity.getOnu().isEmpty() && clienteEntity.getOnu().length() <= 50) {
+			
+			OnuEntity onuEntity = new OnuEntity();
+			onuEntity.setEstatus(estatusOnuEntity);
+			//onuEntity.setFechaRegistro(null);
+			onuEntity.setIdSucursal(util.generarIdSucursal(sucursalId));
+			onuEntity.setSerie(clienteEntity.getOnu());
+			onuEntity.setSucursal(sucursalEntity);
+			onuEntity.setUsuario(usuarioEntity);
+			onuRepository.save(onuEntity);
+			
+			contratoEntity.setOnu(onuEntity);
+			contratoRepository.save(contratoEntity);
+			
+		}
+		
 	}
 	
 	private void validaryCrearDomicilio(ClienteOldEntity clienteEntity, ContratoEntity contratoEntity, SucursalEntity sucursalEntity) {

@@ -72,6 +72,9 @@ public class ClienteOldEntity {
 	
 	@Column(name = "com_cliente")
 	private String com_cliente;
+	
+	@Column(name = "onu")
+	private String onu;
 
 
 }
